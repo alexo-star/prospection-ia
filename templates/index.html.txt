@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Prospection IA</title>
+</head>
+<body>
+    <h1>Bienvenue sur ton IA de Prospection</h1>
+    <form method="POST" action="/prospect">
+        <label for="secteur">Secteur :</label>
+        <input type="text" name="secteur" required><br><br>
+
+        <label for="localisation">Localisation :</label>
+        <input type="text" name="localisation" required><br><br>
+
+        <button type="submit">Lancer la prospection</button>
+    </form>
+</body>
+</html>
