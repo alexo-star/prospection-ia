@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, jsonify
-import openai
 import os
+import requests
 
 app = Flask(__name__)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 @app.route('/')
 def home():
@@ -18,15 +18,24 @@ def prospect():
     prompt = f"Génère une liste de 10 prospects dans le secteur '{secteur}' à '{localisation}' qui pourraient avoir besoin d'un outil d'automatisation de prospection IA."
 
     try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        data = {
+            "model": "mixtral-8x7b-32768",  # ou llama3-8b si tu préfères
+            "messages": [
                 {"role": "system", "content": "Tu es un expert en prospection B2B."},
                 {"role": "user", "content": prompt}
             ]
-        )
-        result = response.choices[0].message.content
+        }
+
+        response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=data)
+        response.raise_for_status()
+        result = response.json()['choices'][0]['message']['content']
         return jsonify({"result": result})
+
     except Exception as e:
         return jsonify({"error": str(e)})
 
