@@ -3,10 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Prospection IA</title>
+    <script>
+        // Fonction pour envoyer les données du formulaire via fetch
+        async function envoyerFormulaire(event) {
+            event.preventDefault();  // Empêche l'envoi classique du formulaire
+
+            // Récupérer les valeurs du formulaire
+            const secteur = document.getElementsByName('secteur')[0].value;
+            const localisation = document.getElementsByName('localisation')[0].value;
+
+            // Créer un objet pour les données à envoyer
+            const data = {
+                secteur: secteur,
+                localisation: localisation
+            };
+
+            // Envoyer la requête POST avec fetch
+            try {
+                const response = await fetch("/prospect", {
+                    method: "POST",
+                    body: JSON.stringify(data),  // Convertir les données en JSON
+                    headers: {
+                        "Content-Type": "application/json"  // Indiquer que l'on envoie du JSON
+                    }
+                });
+
+                // Gérer la réponse de l'API
+                const result = await response.json();
+                if (result.result) {
+                    alert("Prospects générés : " + result.result);
+                } else if (result.error) {
+                    alert("Erreur : " + result.error);
+                }
+            } catch (error) {
+                alert("Une erreur est survenue : " + error.message);
+            }
+        }
+    </script>
 </head>
 <body>
     <h1>Bienvenue sur ton IA de Prospection</h1>
-    <form method="POST" action="/prospect">
+    <form onsubmit="envoyerFormulaire(event)">
         <label for="secteur">Secteur :</label>
         <input type="text" name="secteur" required><br><br>
 
