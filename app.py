@@ -1,11 +1,15 @@
 from flask import Flask, request, render_template, jsonify
 import requests
 import os
+from dotenv import load_dotenv  # Si tu es en local
+
+# Si tu es en local, charge le fichier .env (si tu n'utilises pas Render)
+# load_dotenv()
 
 app = Flask(__name__)
 
-# Assure-toi que cette clé API est bien définie sur Render ou dans ton environnement local
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # Clé API Groq
+# La clé API est lue à partir de la variable d'environnement
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 @app.route('/')
@@ -25,7 +29,7 @@ def prospect():
     }
 
     data = {
-        "model": "mixtral-8x7b-32768",  # ou un autre modèle si tu veux tester
+        "model": "mixtral-8x7b-32768",  # ou autre modèle que tu veux tester
         "messages": [
             {"role": "system", "content": "Tu es un expert en prospection B2B."},
             {"role": "user", "content": prompt}
@@ -34,7 +38,7 @@ def prospect():
 
     try:
         response = requests.post(GROQ_URL, headers=headers, json=data)
-        response.raise_for_status()  # Si la réponse n'est pas 200, cela génère une erreur
+        response.raise_for_status()  # Vérifie si la requête a échoué
         result = response.json()['choices'][0]['message']['content']
         return jsonify({"result": result})
     except Exception as e:
