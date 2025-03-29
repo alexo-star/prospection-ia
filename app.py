@@ -13,9 +13,12 @@ def home():
 
 @app.route('/prospect', methods=['POST'])
 def prospect():
-    secteur = request.form.get('secteur')
-    localisation = request.form.get('localisation')
+    # Récupérer les données envoyées en JSON
+    data = request.get_json()  
+    secteur = data.get('secteur')
+    localisation = data.get('localisation')
 
+    # Créer le prompt
     prompt = f"Génère une liste de 10 prospects dans le secteur '{secteur}' à '{localisation}' qui pourraient avoir besoin d'un outil d'automatisation de prospection IA."
 
     headers = {
@@ -23,16 +26,20 @@ def prospect():
         "Content-Type": "application/json"
     }
 
-    data = {
-        "model": "mixtral-8x7b-32768",  # ou llama3-70b ou gemma-7b si tu veux tester
+    data_to_send = {
+        "model": "gpt-3.5-turbo",  # Utilisation d'un modèle générique
         "messages": [
             {"role": "system", "content": "Tu es un expert en prospection B2B."},
             {"role": "user", "content": prompt}
         ]
     }
 
+    # Afficher les données envoyées pour débogage
+    print("Données envoyées à l'API Groq :", data_to_send)
+
     try:
-        response = requests.post(GROQ_URL, headers=headers, json=data)
+        # Effectuer la requête API
+        response = requests.post(GROQ_URL, headers=headers, json=data_to_send)
         response.raise_for_status()
         result = response.json()['choices'][0]['message']['content']
         return jsonify({"result": result})
