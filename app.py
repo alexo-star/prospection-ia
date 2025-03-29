@@ -4,7 +4,8 @@ import os
 
 app = Flask(__name__)
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # Assure-toi que cette variable est bien définie sur Render
+# Assure-toi que cette clé API est bien définie sur Render ou dans ton environnement local
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # Clé API Groq
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 @app.route('/')
@@ -13,12 +14,9 @@ def home():
 
 @app.route('/prospect', methods=['POST'])
 def prospect():
-    # Récupérer les données envoyées en JSON
-    data = request.get_json()  
-    secteur = data.get('secteur')
-    localisation = data.get('localisation')
+    secteur = request.form.get('secteur')
+    localisation = request.form.get('localisation')
 
-    # Créer le prompt
     prompt = f"Génère une liste de 10 prospects dans le secteur '{secteur}' à '{localisation}' qui pourraient avoir besoin d'un outil d'automatisation de prospection IA."
 
     headers = {
@@ -26,21 +24,17 @@ def prospect():
         "Content-Type": "application/json"
     }
 
-    data_to_send = {
-        "model": "gpt-3.5-turbo",  # Utilisation d'un modèle générique
+    data = {
+        "model": "mixtral-8x7b-32768",  # ou un autre modèle si tu veux tester
         "messages": [
             {"role": "system", "content": "Tu es un expert en prospection B2B."},
             {"role": "user", "content": prompt}
         ]
     }
 
-    # Afficher les données envoyées pour débogage
-    print("Données envoyées à l'API Groq :", data_to_send)
-
     try:
-        # Effectuer la requête API
-        response = requests.post(GROQ_URL, headers=headers, json=data_to_send)
-        response.raise_for_status()
+        response = requests.post(GROQ_URL, headers=headers, json=data)
+        response.raise_for_status()  # Si la réponse n'est pas 200, cela génère une erreur
         result = response.json()['choices'][0]['message']['content']
         return jsonify({"result": result})
     except Exception as e:
